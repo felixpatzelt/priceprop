@@ -1,0 +1,16 @@
+# Compiled python modules
+*.pyc
+
+# Setuptools distribution folder
+/dist/
+
+# Python egg metadata
+/*.egg-info
+/*.egg
+/*.eggs
+
+# ipython checkpoints
+*.ipynb_checkpoints
+
+# Mac OS
+.DS_Store
