@@ -4,6 +4,8 @@ import pandas as pd
 import json
 import priceprop.propagator as prop
 
+# some basic checks, not meant to replace manual testing with real data!
+
 class TestIntegrate(unittest.TestCase):
     def test(self):
         np.testing.assert_almost_equal(prop.integrate([1,2,3]), [0,1,3])
@@ -64,9 +66,7 @@ class TestResponse(unittest.TestCase):
             r, [.75,.75,0,0,.25]
         )
         
-# testing the analytical powerlaws would require to reimplement them and
-# they are only helpers for manual testing anyway
-
+        
 class TestTIM1(unittest.TestCase):    
     def test_tim1(self):
         np.testing.assert_almost_equal(
@@ -74,9 +74,9 @@ class TestTIM1(unittest.TestCase):
             [1,.5,0,0]
         )
 
-    def test_estimate_tim1(self):
+    def test_calibrate_tim1(self):
         np.testing.assert_almost_equal(
-            prop.estimate_tim1([.25,0,0,0], [0,0,0,.25,.125,0,0], maxlag=4),
+            prop.calibrate_tim1([.25,0,0,0], [0,0,0,.25,.125,0,0], maxlag=4),
             [1,.5,0,0]
         )
         
@@ -86,8 +86,8 @@ class TestTIM2(unittest.TestCase):
             prop.tim2([1,-1], np.array([1,0,], dtype=bool),[1,0,],[.1,0,]),
             [.1,-1]
         )
-    def test_estimate_tim2(self):
-        gn, gc = prop.estimate_tim2(
+    def test_calibrate_tim2(self):
+        gn, gc = prop.calibrate_tim2(
             [1,0],[1,0],[0,0],[0,0],[0,.1,0],[0,1,0], maxlag=2
         )
         np.testing.assert_almost_equal(gn, [.1,0])
@@ -100,7 +100,7 @@ class TestHDIM2(unittest.TestCase):
             [.1,0]
         )
         
-    def test_estimate_hdim2(self):
+    def test_calibrate_hdim2(self):
         # It is somehow difficult to find tiny example like above where the 
         # three-point correlation matrix isn't singular!
         with open('tests/hdim2_test.json', 'r') as f:
@@ -109,7 +109,7 @@ class TestHDIM2(unittest.TestCase):
                 else v 
                 for k,v in json.load(f).iteritems()
             }
-        kn_est, kc_est = prop.estimate_hdim2(
+        kn_est, kc_est = prop.calibrate_hdim2(
             lpars['Cnnc'], 
             lpars['Cccc'], 
             lpars['Ccnc'], 

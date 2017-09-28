@@ -163,7 +163,7 @@ def k_pow(steps, beta):
 # TIM1 specific 
 # =====================================================================
 
-def estimate_tim1(c, Sl, maxlag=10**4):
+def calibrate_tim1(c, Sl, maxlag=10**4):
     """Return empirical estimate TIM1 kernel
     
     Parameters:
@@ -198,20 +198,20 @@ def tim1(s, G, sfunc=np.sign):
     G: array-like
         Kernel
     
-    See also: estimate_tim1, integrate, tim2, hdim2.
+    See also: calibrate_tim1, integrate, tim2, hdim2.
     """
     return propagate(s, G, sfunc=sfunc)
 
 # TIM2 specific
 # =====================================================================
 
-def estimate_tim2(
+def calibrate_tim2(
         nncorr, cccorr, cncorr, nccorr, Sln, Slc, maxlag=2**10
     ):
     """
     Return empirical estimate for both kernels of the TIM2.
     (Transient Impact Model with two propagators)
-        
+    
     Parameters:
     ===========
     
@@ -230,7 +230,7 @@ def estimate_tim2(
     maxlag: int
         Length of the kernels.
     
-    See also: estimate_tim1, estimate_hdim2
+    See also: calibrate_tim1, calibrate_hdim2
     """
     # incremental response
     lSn = int(len(Sln) / 2)
@@ -243,7 +243,7 @@ def estimate_tim2(
         [mat_fn(nncorr), mat_fn(cncorr)], 
         [mat_fn(nccorr), mat_fn(cccorr)]
     ])
-    
+        
     # solve
     g = solve(C, S)
     gn = g[:maxlag]
@@ -270,7 +270,7 @@ def tim2(s, c, G_n, G_c, sfunc=np.sign):
     sfunc: function [optional]
         Function to apply to signs. Default: np.sign.
         
-    See also: estimate_tim2, tim1, hdim2.
+    See also: calibrate_tim2, tim1, hdim2.
     """
     assert c.dtype == bool, "c must be a boolean indicator!"
     return propagate(s * c, G_c) + propagate(s * (~c), G_n)
@@ -279,7 +279,7 @@ def tim2(s, c, G_n, G_c, sfunc=np.sign):
 # HDIM2 specific
 # =====================================================================
 
-def estimate_hdim2(
+def calibrate_hdim2(
         Cnnc, Cccc, Ccnc, Sln, Slc,
         maxlag=None, force_lag_zero=True
     ):
@@ -353,7 +353,7 @@ def hdim2(s, c, k_n, k_c, sfunc=np.sign):
     sfunc: function [optional]
         Function to apply to signs. Default: np.sign.
         
-    See also: estimate_hdim2, tim2, tim1.
+    See also: calibrate_hdim2, tim2, tim1.
     """
     assert c.dtype == bool, "c must be a boolean indicator!"
     return c * (propagate(s * c, k_c) + propagate(s * (~c), k_n))

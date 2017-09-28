@@ -4,10 +4,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scorr
 import propagator as prop
-try:
-    from progress import getLogger
-except ImportError:
-    from logging import getLogger
 
 # Helpers
 # ============================================================================
@@ -68,7 +64,7 @@ def shift(x, n, val=np.nan):
 
 def calibrate_models(
         tt, # true trades df
-        nfft='pad, 
+        nfft='pad', 
         group=False,
         models = ['cs','tim1','tim2','hdim2','hdim2_x2']
     ):
@@ -87,8 +83,9 @@ def calibrate_models(
     tt = tt[mask0]
         
     # get same optimal nfft used by pna functions
-    nfft_opt = scorr.get_nfft(nfft, tt.groupby('date')['r1'])[0]
-    maxlag = nfft_opt / 2
+    nfft_opt, events_required = scorr.get_nfft(nfft, tt.groupby('date')['r1'])
+    maxlag = int(min(nfft_opt/2, events_required))
+    
     res['maxlag'] = maxlag
     
     # correlations and responses
@@ -193,12 +190,12 @@ def calibrate_models(
 
     # TIM1
     if 'tim1' in models:
-        res['g'] = prop.estimate_tim1(res['sacorr'], res['S'], maxlag=maxlag)
+        res['g'] = prop.calibrate_tim1(res['sacorr'], res['S'], maxlag=maxlag)
     
     # TIM2
     ## estimate kernels
     if 'tim2' in models:
-        gn, gc = prop.estimate_tim2(
+        gn, gc = prop.calibrate_tim2(
             res['nncorr'],
             res['cccorr'],
             res['cncorr'],
@@ -212,7 +209,7 @@ def calibrate_models(
 
     # HDIM2
     if 'hdim2' in models:
-        kn, kc = prop.estimate_hdim2(
+        kn, kc = prop.calibrate_hdim2(
             res['nnccorr'],
             res['ccccorr'],
             res['cnccorr'],
@@ -223,7 +220,7 @@ def calibrate_models(
         res['kn'] = kn
         res['kc'] = kc
     if 'hdim2_x2' in models:
-        kn, kc = prop.estimate_hdim2(
+        kn, kc = prop.calibrate_hdim2(
             prop.corr_mat(res['nncorr'], maxlag=maxlag),
             prop.corr_mat(res['cccorr'], maxlag=maxlag),
             prop.corr_mat(res['cncorr'], maxlag=maxlag),
@@ -240,7 +237,7 @@ def calibrate_models(
 
 def calc_models(
         dbc,
-        nfft              = 'pad, # also for calibration
+        nfft              = 'pad', # also for calibration
         group             = False,      # "
         calibrate         = True,
         split_by          = 'sample',
