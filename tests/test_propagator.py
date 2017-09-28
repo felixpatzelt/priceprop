@@ -1,7 +1,8 @@
 import unittest
 import numpy as np
 import pandas as pd
-import propagator.propagator as prop
+import json
+import priceprop.propagator as prop
 
 class TestIntegrate(unittest.TestCase):
     def test(self):
@@ -66,8 +67,7 @@ class TestResponse(unittest.TestCase):
 # testing the analytical powerlaws would require to reimplement them and
 # they are only helpers for manual testing anyway
 
-class TestTIM1(unittest.TestCase):
-    
+class TestTIM1(unittest.TestCase):    
     def test_tim1(self):
         np.testing.assert_almost_equal(
             prop.tim1([1,0,0,0], [1,.5,0,0]), 
@@ -79,6 +79,8 @@ class TestTIM1(unittest.TestCase):
             prop.estimate_tim1([.25,0,0,0], [0,0,0,.25,.125,0,0], maxlag=4),
             [1,.5,0,0]
         )
+        
+class TestTIM2(unittest.TestCase):
     def test_tim2(self):
         np.testing.assert_almost_equal(
             prop.tim2([1,-1], np.array([1,0,], dtype=bool),[1,0,],[.1,0,]),
@@ -90,12 +92,49 @@ class TestTIM1(unittest.TestCase):
         )
         np.testing.assert_almost_equal(gn, [.1,0])
         np.testing.assert_almost_equal(gc, [1,0])
-        )
+        
+class TestHDIM2(unittest.TestCase):
     def test_hdim2(self):
         np.testing.assert_almost_equal(
             prop.hdim2([1,-1], np.array([1,0,], dtype=bool),[1,0,],[.1,0,]),
             [.1,0]
         )
+        
     def test_estimate_hdim2(self):
-        # I can't come up with a non-singular example... save a manual test
-        pass
+        # It is somehow difficult to find tiny example like above where the 
+        # three-point correlation matrix isn't singular!
+        with open('tests/hdim2_test.json', 'r') as f:
+            lpars = {
+                k: np.array(v) if hasattr(v, '__len__') 
+                else v 
+                for k,v in json.load(f).iteritems()
+            }
+        kn_est, kc_est = prop.estimate_hdim2(
+            lpars['Cnnc'], 
+            lpars['Cccc'], 
+            lpars['Ccnc'], 
+            lpars['Sn'], 
+            lpars['Sc'], 
+            maxlag=lpars['maxlag']
+        )
+        np.testing.assert_allclose(lpars['kn'], kn_est, rtol=.01, atol=.01)
+        ## The required file can be saved as follows:
+        #savepars = {
+        #    'Cnnc': Cnnc[:maxlag,:maxlag], # an estimation
+        #    'Cccc': Cccc[:maxlag,:maxlag],
+        #    'Ccnc': Ccnc[:maxlag,:maxlag],
+        #    'Sn':   Sn[:2*maxlag],
+        #    'Sc':   Sc[:2*maxlag],
+        #    'maxlag': maxlag,
+        #    'kn':   kn, # the real kernel
+        #    'kc':   kc
+        #}
+        #with open('hdim2_test.json', 'w') as f:
+        #    json.dump(
+        #        {
+        #            k: v.tolist() if hasattr(v, '__len__') 
+        #            else v 
+        #            for k,v in savepars.iteritems()
+        #        },
+        #        f
+        #    )

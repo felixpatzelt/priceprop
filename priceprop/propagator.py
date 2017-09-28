@@ -99,7 +99,7 @@ def response(r, s, maxlag=10**4, ret='lsr', subtract_mean=False):
     return _return_response(ret, x, maxlag)
 
 def response_grouped_df(
-        df, cols, nfft='auto', ret='lsr', subtract_mean=False, **kwargs
+        df, cols, nfft='pad', ret='lsr', subtract_mean=False, **kwargs
     ):
     """Return lag, differential response S, response R calculated daily.
     

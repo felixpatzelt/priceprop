@@ -2,7 +2,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import spectral as spec
+import scorr
 import propagator as prop
 try:
     from progress import getLogger
@@ -68,7 +68,7 @@ def shift(x, n, val=np.nan):
 
 def calibrate_models(
         tt, # true trades df
-        nfft='auto pad', 
+        nfft='pad, 
         group=False,
         models = ['cs','tim1','tim2','hdim2','hdim2_x2']
     ):
@@ -87,9 +87,9 @@ def calibrate_models(
     tt = tt[mask0]
         
     # get same optimal nfft used by pna functions
-    nfft_opt = spec._get_nfft(nfft, tt.groupby('date')['r1'])[0]
-    lmax = nfft_opt / 2
-    res['lmax'] = lmax
+    nfft_opt = scorr.get_nfft(nfft, tt.groupby('date')['r1'])[0]
+    maxlag = nfft_opt / 2
+    res['maxlag'] = maxlag
     
     # correlations and responses
     # ------------------------------------------------------------------------
@@ -102,26 +102,26 @@ def calibrate_models(
         sc = tt['sc'].values
         sn = tt['sn'].values
         # "normal" correlations
-        res['sacorr'] = spec.fftcrop(spec.acorr(s, **kwargs), lmax)
-        res['cccorr'] = spec.fftcrop(spec.xcorr(sc, sc, **kwargs), lmax)
-        res['nncorr'] = spec.fftcrop(spec.xcorr(sn, sn, **kwargs), lmax)
-        res['cncorr'] = spec.fftcrop(spec.xcorr(sc, sn, **kwargs), lmax)
-        res['nccorr'] = spec.fftcrop(spec.xcorr(sn, sc, **kwargs), lmax)
+        res['sacorr'] = scorr.fftcrop(scorr.acorr(s, **kwargs), maxlag)
+        res['cccorr'] = scorr.fftcrop(scorr.xcorr(sc, sc, **kwargs), maxlag)
+        res['nncorr'] = scorr.fftcrop(scorr.xcorr(sn, sn, **kwargs), maxlag)
+        res['cncorr'] = scorr.fftcrop(scorr.xcorr(sc, sn, **kwargs), maxlag)
+        res['nccorr'] = scorr.fftcrop(scorr.xcorr(sn, sc, **kwargs), maxlag)
         # triple cross correlations
         if 'hdim2' in models:
-            res['ccccorr'] = spec.x3corr(
-                c, sc, sc, nfft=2*lmax, pad=lmax, **kwargs
+            res['ccccorr'] = scorr.x3corr(
+                c, sc, sc, nfft=2*maxlag, pad=maxlag, **kwargs
             )
-            res['nnccorr'] = spec.x3corr(
-                c, sn, sn, nfft=2*lmax, pad=lmax, **kwargs
+            res['nnccorr'] = scorr.x3corr(
+                c, sn, sn, nfft=2*maxlag, pad=maxlag, **kwargs
             )
-            res['cnccorr'] = spec.x3corr(
-                c, sc, sn, nfft=2*lmax, pad=lmax, **kwargs
+            res['cnccorr'] = scorr.x3corr(
+                c, sc, sn, nfft=2*maxlag, pad=maxlag, **kwargs
             )
         # responses
-        signed_lags, S, R   = prop.response(r, s, lmax=lmax)
-        signed_lags, Sc, Rc = prop.response(r, sc, lmax=lmax)
-        signed_lags, Sn, Rn = prop.response(r, sn, lmax=lmax)
+        signed_lags, S, R   = prop.response(r, s, maxlag=maxlag)
+        signed_lags, Sc, Rc = prop.response(r, sc, maxlag=maxlag)
+        signed_lags, Sn, Rn = prop.response(r, sn, maxlag=maxlag)
         res['signed_lags']  = signed_lags
         res['S'] = S 
         res['R'] = R
@@ -132,41 +132,41 @@ def calibrate_models(
         res['cmean'] = tt['change'].mean()
     else:
         # treat days separately
-        res['sacorr'] = spec.acorr_grouped_df(
-            tt, ['sign'], nfft=nfft, return_df=False, **kwargs)[0][:lmax]
-        res['cccorr'] = spec.fftcrop(
-            spec.xcorr_grouped_df(
+        res['sacorr'] = scorr.acorr_grouped_df(
+            tt, ['sign'], nfft=nfft, return_df=False, **kwargs)[0][:maxlag]
+        res['cccorr'] = scorr.fftcrop(
+            scorr.xcorr_grouped_df(
                 tt, ['sc','sc'], nfft=nfft, return_df=False, **kwargs
             )[0], 
-            lmax
+            maxlag
         )
-        res['nncorr'] = spec.fftcrop(
-            spec.xcorr_grouped_df(
+        res['nncorr'] = scorr.fftcrop(
+            scorr.xcorr_grouped_df(
                 tt, ['sn', 'sn'], nfft=nfft, return_df=False, **kwargs
             )[0], 
-            lmax
+            maxlag
         )
-        res['cncorr'] = spec.fftcrop(
-            spec.xcorr_grouped_df(
+        res['cncorr'] = scorr.fftcrop(
+            scorr.xcorr_grouped_df(
                 tt, ['sc', 'sn'], nfft=nfft, return_df=False, **kwargs
             )[0], 
-            lmax
+            maxlag
         )
-        res['nccorr'] = spec.fftcrop(
-            spec.xcorr_grouped_df(
+        res['nccorr'] = scorr.fftcrop(
+            scorr.xcorr_grouped_df(
                 tt, ['sn', 'sc'], nfft=nfft, return_df=False, **kwargs
             )[0], 
-            lmax
+            maxlag
         )
         # triple cross correlations
         if 'hdim2' in models:
-            res['ccccorr'] = spec.x3corr_grouped_df(
+            res['ccccorr'] = scorr.x3corr_grouped_df(
                 tt, ['change', 'sc', 'sc'], nfft=nfft, **kwargs
             )[0]
-            res['nnccorr'] = spec.x3corr_grouped_df(
+            res['nnccorr'] = scorr.x3corr_grouped_df(
                 tt, ['change', 'sn', 'sn'], nfft=nfft, **kwargs
             )[0]
-            res['cnccorr'] = spec.x3corr_grouped_df(
+            res['cnccorr'] = scorr.x3corr_grouped_df(
                 tt, ['change', 'sc', 'sn'], nfft=nfft, **kwargs
             )[0]
         # responses
@@ -193,7 +193,7 @@ def calibrate_models(
 
     # TIM1
     if 'tim1' in models:
-        res['g'] = prop.estimate_tim1(res['sacorr'], res['S'], lmax=lmax)
+        res['g'] = prop.estimate_tim1(res['sacorr'], res['S'], maxlag=maxlag)
     
     # TIM2
     ## estimate kernels
@@ -205,7 +205,7 @@ def calibrate_models(
             res['nccorr'],
             res['Sn'],
             res['Sc'],
-            lmax=lmax
+            maxlag=maxlag
         )
         res['gc'] = gc
         res['gn'] = gn
@@ -218,18 +218,18 @@ def calibrate_models(
             res['cnccorr'],
             res['Sn'], 
             res['Sc'], 
-            lmax=lmax,
+            maxlag=maxlag,
         )
         res['kn'] = kn
         res['kc'] = kc
     if 'hdim2_x2' in models:
         kn, kc = prop.estimate_hdim2(
-            prop.corr_mat(res['nncorr'], lmax=lmax),
-            prop.corr_mat(res['cccorr'], lmax=lmax),
-            prop.corr_mat(res['cncorr'], lmax=lmax),
+            prop.corr_mat(res['nncorr'], maxlag=maxlag),
+            prop.corr_mat(res['cccorr'], maxlag=maxlag),
+            prop.corr_mat(res['cncorr'], maxlag=maxlag),
             res['Sn'], 
             res['Sc'], 
-            lmax=lmax,
+            maxlag=maxlag,
         )
         res['kn_x2'] = kn
         res['kc_x2'] = kc
@@ -240,7 +240,7 @@ def calibrate_models(
 
 def calc_models(
         dbc,
-        nfft              = 'auto pad', # also for calibration
+        nfft              = 'pad, # also for calibration
         group             = False,      # "
         calibrate         = True,
         split_by          = 'sample',
