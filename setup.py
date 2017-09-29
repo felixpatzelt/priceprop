@@ -4,7 +4,7 @@ setup(
     name='priceprop',
     version='1.0.0-rc.1',
     description=(
-        'Calibrate and simulate linear propagator models for price '
+        'Calibrate and simulate linear propagator models for the price '
         'impact of an extrinsic order flow.'
     ),
     long_description="""
