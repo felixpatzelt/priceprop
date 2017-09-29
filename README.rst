@@ -2,12 +2,13 @@ PriceProp
 =========
 
 Simulate and calibrate linear propagator models for price responses to an
-external order flow. The models and methods are explained in:
+external order flow. The models and methods are explained and applied to
+real hight frequency trading data in:
     
     Patzelt, F. and Bouchaud, J-P.:
     Nonlinear price impact from linear models. 
     Journal of Statistical Mechanics (2017). 
-    Preprint at arXiv:1706.04163. 
+    Preprint at arXiv:1708.02411. 
     
     
 =====================   ======================================================
@@ -34,7 +35,7 @@ tim2                    Simulate two-kernel Transient Impact Model
 =====================   ======================================================
 
 
-The submodule `batch` automates model calibration and simulation. Please
+The submodule ``batch`` automates model calibration and simulation. Please
 find further explanations in the docstrings and in the examples directory.
 
 
