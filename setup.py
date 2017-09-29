@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='priceprop',
-    version='1.0.0-rc.1',
+    version='1.0.0',
     description=(
         'Calibrate and simulate linear propagator models for the price '
         'impact of an extrinsic order flow.'
@@ -12,7 +12,7 @@ setup(
 	
             Patzelt, F. and Bouchaud, J-P.:
             Nonlinear price impact from linear models
-            Journal of Statistical Mechanics (2017)
+            Journal of Statistical Mechanics (2017, in print)
             Preprint at arXiv:1706.04163
     """,
     classifiers=[
@@ -21,7 +21,7 @@ setup(
         'Intended Audience :: Education',
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2 :: Only',
         'Programming Language :: Python :: 2.7',
         #'Programming Language :: Python :: 3',
         #'Programming Language :: Python :: 3.6',
@@ -36,7 +36,7 @@ setup(
     ],
     url='http://github.com/felixpatzelt/priceprop',
     download_url=(
-      'https://github.com/felixpatzelt/priceprop/archive/1.0.0-rc.1.tar.gz'
+      'https://github.com/felixpatzelt/priceprop/archive/1.0.0.gz'
     ),
     author='Felix Patzelt',
     author_email='felix@neuro.uni-bremen.de',
