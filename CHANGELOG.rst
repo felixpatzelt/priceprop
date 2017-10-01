@@ -1,13 +1,11 @@
 Changelog
 =========
 
+
 :Version: 1.0.2 of 2017-09-29
 
-Minor bugfix release:
-
-	- Changed some variable names and keys in batch.py to reflect the name 
-	  "CIM" given to the Constant impact model in the paper (was "CS" during 
-	  development).
+Minor bugfix release: some variable- and key names in batch.py still reflected 
+the development name of the "CIM" model.
 
 
 :Version: 1.0.1 of 2017-09-29
