@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='priceprop',
-    version='1.0.1',
+    version='1.0.2',
     description=(
         'Calibrate and simulate linear propagator models for the price '
         'impact of an extrinsic order flow.'
@@ -36,7 +36,7 @@ setup(
     ],
     url='http://github.com/felixpatzelt/priceprop',
     download_url=(
-      'https://github.com/felixpatzelt/priceprop/archive/1.0.1.tar.gz'
+      'https://github.com/felixpatzelt/priceprop/archive/1.0.2.tar.gz'
     ),
     author='Felix Patzelt',
     author_email='felix@neuro.uni-bremen.de',
