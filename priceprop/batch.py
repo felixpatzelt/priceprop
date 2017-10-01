@@ -66,7 +66,7 @@ def calibrate_models(
         tt, # true trades df
         nfft='pad', 
         group=False,
-        models = ['cs','tim1','tim2','hdim2','hdim2_x2']
+        models = ['cim','tim1','tim2','hdim2','hdim2_x2']
     ):
     """Return dict with correlations, kernels, and responses.
     Calculate sign & price change correlations, response functions, 
@@ -242,7 +242,7 @@ def calc_models(
         calibrate         = True,
         split_by          = 'sample',
         rshift            = 0, ## sync to causal return, not r1
-        models            = ['cs','tim1','tim2','hdim2','hdim2_x2'],
+        models            = ['cim','tim1','tim2','hdim2','hdim2_x2'],
         smooth_kernel     = True
     ):
     """Add propagator(-like) models to trades.  
@@ -302,8 +302,8 @@ def calc_models(
         ## model output -> trades df (sync to regular return, not r1)
         if not group:
             ## treat everything in the sample as one continuous series
-            if 'cs' in models:
-                tt.loc[m,'r_cs'] = (
+            if 'cim' in models:
+                tt.loc[m,'r_cim'] = (
                     tt.loc[m,'change'] * tt.loc[m,'sign']
                 ).shift(rshift)
                 #tt['r_cps'] = (
@@ -350,7 +350,7 @@ def calc_models(
         else:
             # simulate models for each day in the sample independently
             g = tt.loc[m].groupby('date')
-            rcs       = []
+            rcim      = []
             rtim1     = []
             rtim2     = []
             rhdim2    = []
@@ -365,7 +365,7 @@ def calc_models(
             kc_hdim2_x2 = kern(cal['kc_x2'])
             # simulate for all groups
             for i, (gk, gv) in enumerate(g):
-                rcs.append((gv['change'].astype(float) * gv['sign']))
+                rcim.append((gv['change'].astype(float) * gv['sign']))
                 if 'tim1' in models:
                     rtim1.append(
                         shift(
@@ -411,7 +411,7 @@ def calc_models(
                             rshift
                         )
                     )
-            if 'cs' in models:     tt.loc[m,'r_cs']    = np.concatenate(rcs)
+            if 'cim' in models:    tt.loc[m,'r_cim']    = np.concatenate(rcim)
             if 'tim1' in models:   tt.loc[m,'r_tim1']  = np.concatenate(rtim1)
             if 'tim2' in models:   tt.loc[m,'r_tim2']  = np.concatenate(rtim2)
             if 'hdim2' in models:  tt.loc[m,'r_hdim2'] = np.concatenate(rhdim2)
