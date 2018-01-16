@@ -5,9 +5,9 @@ Simulate and calibrate linear propagator models for price responses to an
 external order flow. The models and methods are explained and applied to
 real high-frequency trading data in:
     
-    Patzelt, F. and Bouchaud, J-P.:
+    Patzelt, F. and Bouchaud, J-P. (2017):
     Nonlinear price impact from linear models. 
-    Journal of Statistical Mechanics (2017, in print). 
+    Journal of Statistical Mechanics: Theory and Experiment, 12, 123404. 
     Preprint at `arXiv:1708.02411 <//arxiv.org/abs/1708.02411>`_.
     
 =====================   ======================================================
